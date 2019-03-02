@@ -22,6 +22,7 @@ import '../content/scss/vendor.scss';
 import AlertService from '@/shared/alert/alert.service';
 import ConfigurationService from '@/admin/configuration/configuration.service';
 
+import VoiceCallService from '@/entities/voice-call/voice-call.service';
 // jhipster-needle-add-entity-service-to-main-import - JHipster will import entities services here
 
 Vue.config.productionTip = false;
@@ -74,6 +75,7 @@ new Vue({
     logsService: () => new LogsService(),
     metricsService: () => new MetricsService(),
     alertService: () => alertService,
+    voiceCallService: () => new VoiceCallService(),
     // jhipster-needle-add-entity-service-to-main - JHipster will import entities services here
     accountService: () => accountService
   },

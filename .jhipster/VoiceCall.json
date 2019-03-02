@@ -1,0 +1,45 @@
+{
+    "name": "VoiceCall",
+    "fields": [
+        {
+            "fieldName": "number",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "message",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "voice",
+            "fieldType": "Voice",
+            "fieldValues": "JOANNA,MATTHEW,CELINE,MATHIEU",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "twiml",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "date",
+            "fieldType": "ZonedDateTime"
+        }
+    ],
+    "relationships": [],
+    "changelogDate": "20190302000023",
+    "entityTableName": "voice_call",
+    "dto": "no",
+    "pagination": "no",
+    "service": "no",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

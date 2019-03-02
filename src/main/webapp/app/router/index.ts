@@ -24,6 +24,12 @@ const JhiLogsComponent = () => import('../admin/logs/logs.vue');
 const JhiAuditsComponent = () => import('../admin/audits/audits.vue');
 const JhiMetricsComponent = () => import('../admin/metrics/metrics.vue');
 /* tslint:disable */
+// prettier-ignore
+const VoiceCall = () => import('../entities/voice-call/voice-call.vue');
+// prettier-ignore
+const VoiceCallUpdate = () => import('../entities/voice-call/voice-call-update.vue');
+// prettier-ignore
+const VoiceCallDetails = () => import('../entities/voice-call/voice-call-details.vue');
 // jhipster-needle-add-entity-to-router-import - JHipster will import entities to the router here
 
 Vue.use(Router);
@@ -139,6 +145,31 @@ export default new Router({
       name: 'JhiConfigurationComponent',
       component: JhiConfigurationComponent,
       meta: { authorities: ['ROLE_ADMIN'] }
+    }
+    ,
+    {
+      path: '/entity/voice-call',
+      name: 'VoiceCall',
+      component: VoiceCall,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/entity/voice-call/new',
+      name: 'VoiceCallCreate',
+      component: VoiceCallUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/entity/voice-call/:voiceCallId/edit',
+      name: 'VoiceCallEdit',
+      component: VoiceCallUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/entity/voice-call/:voiceCallId/view',
+      name: 'VoiceCallView',
+      component: VoiceCallDetails,
+      meta: { authorities: ['ROLE_USER'] }
     }
     // jhipster-needle-add-entity-to-router - JHipster will add entities to the router here
   ]

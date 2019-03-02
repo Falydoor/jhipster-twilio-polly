@@ -1,0 +1,10 @@
+entity VoiceCall {
+	number String required,
+	message String required,
+	voice Voice required,
+	twiml String,
+	date ZonedDateTime
+}
+enum Voice {
+	JOANNA, MATTHEW, CELINE, MATHIEU
+}

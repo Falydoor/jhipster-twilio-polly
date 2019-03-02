@@ -26,6 +26,10 @@
                         <font-awesome-icon icon="th-list" />
                         <span>Entities</span>
                     </span>
+                    <b-dropdown-item to="/entity/voice-call">
+                        <font-awesome-icon icon="asterisk" />
+                        <span >VoiceCall</span>
+                    </b-dropdown-item>
                     <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
                 </b-nav-item-dropdown>
                 <b-nav-item-dropdown
