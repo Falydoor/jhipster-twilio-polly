@@ -1,18 +1,27 @@
 package com.mycompany.myapp.web.rest;
+
 import com.mycompany.myapp.domain.VoiceCall;
 import com.mycompany.myapp.repository.VoiceCallRepository;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import com.mycompany.myapp.web.rest.util.HeaderUtil;
+import com.twilio.Twilio;
+import com.twilio.twiml.VoiceResponse;
+import com.twilio.twiml.voice.Say;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,10 +36,18 @@ public class VoiceCallResource {
 
     private static final String ENTITY_NAME = "voiceCall";
 
+    private static final String BUCKET = "MY_BUCKET";
+
     private final VoiceCallRepository voiceCallRepository;
+
+    private final S3Client s3;
 
     public VoiceCallResource(VoiceCallRepository voiceCallRepository) {
         this.voiceCallRepository = voiceCallRepository;
+        // Initialize Twilio
+        Twilio.init("", "");
+        // Create S3 client using default credential profile
+        s3 = S3Client.builder().region(Region.US_EAST_1).credentialsProvider(ProfileCredentialsProvider.create()).build();
     }
 
     /**
@@ -46,7 +63,26 @@ public class VoiceCallResource {
         if (voiceCall.getId() != null) {
             throw new BadRequestAlertException("A new voiceCall cannot already have an ID", ENTITY_NAME, "idexists");
         }
+
+        // Generate TwiML
+        Say say = new Say.Builder(voiceCall.getMessage()).voice(Say.Voice.valueOf("POLLY_" + voiceCall.getVoice().name())).build();
+        VoiceResponse twiml = new VoiceResponse.Builder().say(say).build();
+
+        // Update VoiceCall
+        voiceCall.twiml(twiml.toXml())
+            .date(ZonedDateTime.now());
+
         VoiceCall result = voiceCallRepository.save(voiceCall);
+
+        // Save TwiML to S3 with public read
+        PutObjectRequest putRequest = PutObjectRequest.builder()
+            .bucket(BUCKET)
+            .key(result.getId() + ".xml")
+            .contentType("text/xml")
+            .acl(ObjectCannedACL.PUBLIC_READ)
+            .build();
+        s3.putObject(putRequest, software.amazon.awssdk.core.sync.RequestBody.fromString(result.getTwiml()));
+
         return ResponseEntity.created(new URI("/api/voice-calls/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
