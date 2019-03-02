@@ -5,8 +5,10 @@ import com.mycompany.myapp.repository.VoiceCallRepository;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import com.mycompany.myapp.web.rest.util.HeaderUtil;
 import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Call;
 import com.twilio.twiml.VoiceResponse;
 import com.twilio.twiml.voice.Say;
+import com.twilio.type.PhoneNumber;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,8 @@ public class VoiceCallResource {
     private static final String ENTITY_NAME = "voiceCall";
 
     private static final String BUCKET = "MY_BUCKET";
+
+    private static final String TWILIO_NUMBER = "NUMBER";
 
     private final VoiceCallRepository voiceCallRepository;
 
@@ -82,6 +86,11 @@ public class VoiceCallResource {
             .acl(ObjectCannedACL.PUBLIC_READ)
             .build();
         s3.putObject(putRequest, software.amazon.awssdk.core.sync.RequestBody.fromString(result.getTwiml()));
+
+        // Make call using Twilio
+        String twimlUri = "https://s3.amazonaws.com/" + putRequest.bucket() + "/" + putRequest.key();
+        Call call = Call.creator(new PhoneNumber(voiceCall.getNumber()), new PhoneNumber(TWILIO_NUMBER), new URI(twimlUri)).create();
+        log.debug("CALL SID : {}", call.getSid());
 
         return ResponseEntity.created(new URI("/api/voice-calls/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
