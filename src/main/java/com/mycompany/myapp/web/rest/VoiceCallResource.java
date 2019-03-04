@@ -5,8 +5,10 @@ import com.mycompany.myapp.repository.VoiceCallRepository;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import com.mycompany.myapp.web.rest.util.HeaderUtil;
 import com.twilio.Twilio;
+import com.twilio.http.HttpMethod;
 import com.twilio.rest.api.v2010.account.Call;
 import com.twilio.twiml.VoiceResponse;
+import com.twilio.twiml.voice.Pause;
 import com.twilio.twiml.voice.Say;
 import com.twilio.type.PhoneNumber;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -70,7 +72,10 @@ public class VoiceCallResource {
 
         // Generate TwiML
         Say say = new Say.Builder(voiceCall.getMessage()).voice(Say.Voice.valueOf("POLLY_" + voiceCall.getVoice().name())).build();
-        VoiceResponse twiml = new VoiceResponse.Builder().say(say).build();
+        VoiceResponse twiml = new VoiceResponse.Builder()
+            .say(say)
+            .pause(new Pause.Builder().length(1).build())
+            .build();
 
         // Update VoiceCall
         voiceCall.twiml(twiml.toXml())
@@ -89,7 +94,9 @@ public class VoiceCallResource {
 
         // Make call using Twilio
         String twimlUri = "https://s3.amazonaws.com/" + putRequest.bucket() + "/" + putRequest.key();
-        Call call = Call.creator(new PhoneNumber(voiceCall.getNumber()), new PhoneNumber(TWILIO_NUMBER), new URI(twimlUri)).create();
+        Call call = Call.creator(new PhoneNumber(voiceCall.getNumber()), new PhoneNumber(TWILIO_NUMBER), new URI(twimlUri))
+            .setMethod(HttpMethod.GET)
+            .create();
         log.debug("CALL SID : {}", call.getSid());
 
         return ResponseEntity.created(new URI("/api/voice-calls/" + result.getId()))
